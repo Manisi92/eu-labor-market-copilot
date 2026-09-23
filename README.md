@@ -1,5 +1,10 @@
 EU Labor Market Copilot
 
+![Alt text](screenshot/image-1(1).jpeg)
+![Alt text](screenshot/image-1(2).jpeg)
+![Alt text](screenshot/image-1(3).jpeg)
+![Alt text](screenshot/image-1.jpeg)
+
 Ask questions about EU youth unemployment in plain English — get back a real, schema-grounded SQL query, a natural-language answer, and a chart. No pre-built dashboard filters, no hallucinated numbers.
 
 Built as an extension of the EU Youth Unemployment Analytics project (Python/pandas/SQLite pipeline + Power BI dashboard covering 20 EU member states, 1991–2025) — this adds a conversational layer on top of that same real dataset.
