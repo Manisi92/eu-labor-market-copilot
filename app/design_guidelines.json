@@ -1,0 +1,114 @@
+{
+  "project_name": "EU Labor Market Copilot",
+  "app_type": "hybrid_fullstack",
+  "design_archetype": "Swiss & High-Contrast with Organic Precision",
+  "theme": "Light",
+  "color_palette": {
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "surface_subtle": "#F1F5F9",
+    "border": "#E2E8F0",
+    "border_active": "#CBD5E1",
+    "text_primary": "#0F172A",
+    "text_secondary": "#475569",
+    "text_muted": "#64748B",
+    "primary_accent": "#1E40AF",
+    "primary_accent_hover": "#1D4ED8",
+    "primary_accent_light": "#EFF6FF",
+    "chart_primary": "#2563EB",
+    "chart_secondary": "#64748B",
+    "chart_accent_1": "#3B82F6",
+    "chart_accent_2": "#93C5FD",
+    "code_bg": "#0F172A",
+    "code_text": "#E2E8F0",
+    "badge_eu_bg": "#DBEAFE",
+    "badge_eu_text": "#1E40AF"
+  },
+  "typography": {
+    "font_family_heading": "Outfit, sans-serif",
+    "font_family_body": "Inter, -apple-system, sans-serif",
+    "font_family_mono": "JetBrains Mono, Menlo, monospace",
+    "scale": {
+      "h1": "text-3xl sm:text-4xl font-bold tracking-tight text-slate-900",
+      "h2": "text-xl sm:text-2xl font-semibold tracking-tight text-slate-900",
+      "h3": "text-lg font-medium text-slate-800",
+      "body": "text-base text-slate-700 leading-relaxed",
+      "caption": "text-xs font-medium uppercase tracking-wider text-slate-500",
+      "code": "font-mono text-xs leading-normal"
+    }
+  },
+  "spacing_and_layout": {
+    "container_padding": "p-4 sm:p-6 lg:p-8",
+    "max_width": "max-w-5xl mx-auto",
+    "chat_gap": "space-y-6",
+    "card_padding": "p-5 sm:p-6",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-4"
+  },
+  "visual_enhancers": {
+    "card_border": "border border-slate-200/80 rounded-xl shadow-xs bg-white",
+    "glass_header": "backdrop-blur-md bg-white/80 border-b border-slate-200/80 sticky top-0 z-50",
+    "sql_block": "bg-slate-900 text-slate-100 rounded-lg p-4 font-mono text-xs overflow-x-auto relative border border-slate-800",
+    "subtle_shadow": "shadow-[0_2px_8px_rgba(15,23,42,0.04)]",
+    "hover_lift": "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+  },
+  "component_specifications": {
+    "navigation_header": {
+      "title": "EU Labor Market Copilot",
+      "badge": "SQLite • youth_unemployment dataset",
+      "components": ["Logo/Icon (EU stars or clean chart icon)", "Dataset Badge", "Clear Chat Button", "Schema Info Modal Trigger"]
+    },
+    "empty_state": {
+      "title": "Decision-Ready EU Labor Market Intelligence",
+      "subtitle": "Ask natural language questions about youth unemployment across EU member states, aggregates, and historic trends.",
+      "sample_queries": [
+        "Which 5 EU countries had the highest youth unemployment rate in 2022?",
+        "Compare youth unemployment between Spain, Germany, and the EU aggregate from 2015 to 2023.",
+        "What was the trend of youth unemployment in France over the last 10 years?",
+        "Show me countries where youth unemployment exceeded 20% in 2020."
+      ]
+    },
+    "chat_message_item": {
+      "user_bubble": "bg-slate-100 text-slate-900 rounded-2xl px-5 py-3.5 max-w-2xl ml-auto border border-slate-200/60",
+      "copilot_bubble": "bg-white text-slate-900 rounded-2xl p-6 border border-slate-200 shadow-xs space-y-5 w-full",
+      "elements": [
+        "Natural language narrative summary answer",
+        "Auto-selected Bar or Line chart with interactive tooltip & legend (Recharts)",
+        "Collapsible SQL Query section with 'View Generated SQL' toggle and 'Copy SQL' button",
+        "Data summary metric cards (e.g. Total records, Max/Min rate, Average)",
+        "Raw Query Results table expander for power users"
+      ]
+    },
+    "query_input": {
+      "container": "sticky bottom-0 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent pt-6 pb-6 px-4 z-40",
+      "input_box": "w-full flex items-center gap-2 bg-white rounded-2xl border border-slate-300 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 p-2 pr-3",
+      "submit_button": "bg-blue-800 hover:bg-blue-700 text-white p-2.5 rounded-xl transition-colors disabled:opacity-50"
+    }
+  },
+  "data_testing_ids": {
+    "header_brand": "app-header-brand",
+    "header_clear_chat": "header-clear-chat-btn",
+    "schema_info_btn": "schema-info-btn",
+    "empty_state_container": "empty-state-container",
+    "sample_prompt_card": "sample-prompt-card-",
+    "chat_thread": "chat-thread-container",
+    "user_message": "user-message-",
+    "copilot_message": "copilot-message-",
+    "chart_container": "chart-container-",
+    "sql_toggle_btn": "sql-toggle-btn-",
+    "sql_code_block": "sql-code-block-",
+    "sql_copy_btn": "sql-copy-btn-",
+    "chat_input_form": "chat-input-form",
+    "chat_input_textarea": "chat-input-textarea",
+    "chat_submit_btn": "chat-submit-btn"
+  },
+  "instructions_to_main_agent": [
+    "Ensure the layout is clean, modern, and data-focused with generous whitespace.",
+    "Use single muted EU blue (#1E40AF) as the main accent across primary buttons, highlights, and primary chart series.",
+    "Render exact auto-decided chart types: Line chart for multi-year trends and Bar chart for cross-country comparisons.",
+    "Always render the SQL query alongside or collapsible inside the Copilot answer for transparency.",
+    "Add sample prompt cards in the empty state so users can run queries with 1-click.",
+    "Attach required data-testid attributes to all interactive elements as defined in data_testing_ids.",
+    "Include schema documentation drawer or modal explaining available fields (entity, country_code, year, youth_unemployment_rate, is_eu_aggregate)."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": "Follow generous spacing, clean line-heights, accessibility standards, data-testid on all key components, and avoid generic centered templates."
+}

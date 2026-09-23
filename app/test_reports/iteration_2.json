@@ -1,0 +1,43 @@
+{
+  "summary": "Tested 4 new features (GET /api/entities, GET /api/series, CompareDialog, Trend Insight, EU overlay, CSV Export) + full regression. Backend: 11/11 pytest cases pass. Frontend: All new UI elements render and function correctly (Compare chips → multi-series line, trend-insight callout, EU overlay toggle adds/removes 2nd series, CSV download fires, sample card + SQL/table toggles + Schema + Clear all pass). Discovered ONE CRITICAL business-logic bug via testing the Germany trend prompt: LLM SYSTEM_PROMPT (backend/server.py) teaches the model that country codes are 2-letter ('ES','DE') and EU aggregate is 'EU27_2020' — but the actual database uses ISO3 codes ('DEU','FRA','ITA','GRC',...) and 'OWID_EU27' for the EU aggregate. Consequence: any question the LLM chooses to answer by filtering on country_code (e.g. 'Germany' → WHERE country_code = \"DE\") returns 0 rows, so trend-insight and EU-overlay never appear for that message. Also the SCHEMA_FIELDS in ChatApp.jsx and /api/schema DDL comments repeat the same wrong codes. Backend row count still 735 after all tests.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "/api/chat (SYSTEM_PROMPT)", "issue": "SYSTEM_PROMPT lists WRONG country codes ('ES','DE','EU27_2020','EA20') that do NOT exist in the seeded youth_unemployment.db. Real codes are ISO3 ('AUT','BEL','BGR','CYP','CZE','DEU','DNK','EST','FIN','FRA','GRC','HRV','HUN','IRL','ITA','LTU','LUX','LVA','MLT','NLD') plus 'OWID_EU27'. LLM therefore emits e.g. WHERE country_code='DE' and returns 0 rows for 'Germany' trend questions, breaking trend-insight and eu-overlay UI. Also the /api/schema endpoint 'country_code' description contains the same wrong examples.", "priority": "CRITICAL"}
+    ],
+    "minor": [
+      {"endpoint": "/api/chat", "issue": "spec.get('answer',...) is taken from the LLM BEFORE the query runs — for the top-5 bar chart LLM produced text mentioning 'Spain, Romania and Sweden' (not present in DB) while the actual returned rows were Greece/Italy/Cyprus/Estonia/France. summarize() concatenates the hallucinated intent before the accurate numeric summary. Consider regenerating the natural language answer from rows rather than trusting the LLM's pre-query 'answer' field."},
+      {"endpoint": "/api/series", "issue": "codes='' returns 400 with the same error as ';DROP' — acceptable but arguably 422 would be more RESTful; also codes with only invalid tokens silently drop them (documented, but consider warning)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Single-country trend (Germany, or any country the LLM maps to a 2-letter code)", "issue": "Because the backend prompt emits WHERE country_code='DE', the chat message returns 0 rows and chart is empty ('No chart data'), so trend-insight-<i> and eu-overlay-btn-<i> never render. Verified with France (which the LLM matched by entity name) — trend insight ('Biggest rise +4.8 pp 2008→2009', 'Sharpest fall -2.8 pp 2006→2007') and EU overlay (legend 1→2→1) both work perfectly, confirming the UI is correct and the failure is purely the prompt/DB code mismatch.", "affected_selectors": ["trend-insight-1", "eu-overlay-btn-1"]}
+    ],
+    "design_issues": [
+      {"screen": "ChatApp.jsx SchemaDialog", "issues": ["SCHEMA_FIELDS for 'country_code' still shows outdated example 'Code like ES, DE — or aggregate EU27_2020, EA20' that does not match the current DB. Should be 'ISO3 code (DEU, FRA, ...) or aggregate OWID_EU27'. Same wording is served by GET /api/schema."]},
+      {"screen": "CopilotMessage bar chart", "issues": ["Recharts warning 'width(-1) and height(-1) of chart should be greater than 0' still logged on first render (already noted in iteration_1)."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "HIGH: Fix SYSTEM_PROMPT in /app/backend/server.py to reference the ACTUAL country codes (ISO3, e.g. 'DEU','FRA') and the correct EU aggregate 'OWID_EU27'. Ideally inject the real DISTINCT (entity, country_code, is_eu_aggregate) list into the prompt at request time so the LLM never has to guess.",
+    "HIGH: Update /api/schema endpoint description and frontend SCHEMA_FIELDS accordingly.",
+    "MED: Regenerate/verify the natural-language 'answer' after query execution (don't trust the LLM's pre-query summary — it hallucinated country names in the top-5 bar test).",
+    "LOW: Add explicit height on ResultChart wrapper to silence recharts width/height(-1) warnings."
+  ],
+  "critical_code_review_comments": [
+    "server.py SYSTEM_PROMPT is out of sync with the seeded SQLite DB (biggest correctness risk in this iteration).",
+    "server.py uses deprecated FastAPI @app.on_event('shutdown'); migrate to lifespan.",
+    "CompareDialog builds the question with entity NAMES (which do exist in DB) — safe; but euAggregate prop is imported but not used inside CompareDialog. Minor dead prop.",
+    "CopilotMessage.toggleOverlay: on axios error, setOverlay stays false but euMap stays null, so a retry works — fine. Consider surfacing the specific /api/series error message."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (11/11 pytest)", "frontend": "~90% — all new UI features render and behave correctly on happy-path (France); Germany path exposes prompt/data mismatch"},
+  "test_credentials": "N/A (no auth)",
+  "seed_data_creation": "None. DB row count verified 735 before AND after tests.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run /app/backend/tests/backend_test.py — 11 tests, ~25s. For frontend, the Compare flow uses entity names (safe). Trend + EU overlay UI is proven to work end-to-end when the SQL actually returns rows (verified with France). The ONLY failure mode is when the LLM emits WHERE country_code='DE' (or any legacy 2-letter code / 'EU27_2020') because the DB stores ISO3 + 'OWID_EU27'. After main agent fixes the SYSTEM_PROMPT, re-run the Germany trend question and expect trend-insight-<i> and eu-overlay-btn-<i> to render. Chip codes in CompareDialog to use for retest: DEU, FRA, ITA, GRC, NLD (Spain/ESP is NOT in this DB).",
+  "rca of the issue": "Root cause: SYSTEM_PROMPT in /app/backend/server.py:49-73 hardcodes example country codes ('ES','DE','EU27_2020','EA20') copied from an older/OWID Eurostat schema, but the currently mounted SQLite file (/app/backend/data/youth_unemployment.db, 735 rows) stores ISO3 codes ('DEU','FRA','ITA','GRC',... 20 members) and the EU aggregate as 'OWID_EU27'. Gemini follows the prompt literally, producing SQL like `WHERE country_code='DE'` which returns 0 rows. Repro: POST /api/chat {question:'What was the trend of youth unemployment in Germany from 2005 to 2015?'} → returns rows=[], chart.data=[], chart.series=[]. Mitigation: (a) rewrite the SYSTEM_PROMPT with correct codes, ideally dynamically embed `SELECT DISTINCT entity, country_code FROM youth_unemployment` (already available via /api/entities) each request, OR (b) instruct the LLM to always filter by `entity` (name) rather than `country_code`. Also update /api/schema description and frontend SCHEMA_FIELDS to prevent user confusion."
+}
